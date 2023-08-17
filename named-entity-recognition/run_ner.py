@@ -28,7 +28,7 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 from seqeval.metrics import f1_score, precision_score, recall_score
 from torch import nn
-
+from datasets import load_dataset
 from transformers import (
     AutoConfig,
     AutoModelForTokenClassification,
@@ -177,32 +177,36 @@ def main():
     '''
 
     # Get datasets
-    train_dataset = (
-        NerDataset(
-            data_dir=data_args.data_dir,
-            tokenizer=tokenizer,
-            labels=labels,
-            model_type=config.model_type,
-            max_seq_length=data_args.max_seq_length,
-            overwrite_cache=data_args.overwrite_cache,
-            mode=Split.train,
-        )
-        if training_args.do_train
-        else None
-    )
-    eval_dataset = (
-        NerDataset(
-            data_dir=data_args.data_dir,
-            tokenizer=tokenizer,
-            labels=labels,
-            model_type=config.model_type,
-            max_seq_length=data_args.max_seq_length,
-            overwrite_cache=data_args.overwrite_cache,
-            mode=Split.dev,
-        )
-        if training_args.do_eval
-        else None
-    )
+    # train_dataset = (
+    #     NerDataset(
+    #         data_dir=data_args.data_dir,
+    #         tokenizer=tokenizer,
+    #         labels=labels,
+    #         model_type=config.model_type,
+    #         max_seq_length=data_args.max_seq_length,
+    #         overwrite_cache=data_args.overwrite_cache,
+    #         mode=Split.train,
+    #     )
+    #     if training_args.do_train
+    #     else None
+    # )
+    # eval_dataset = (
+    #     NerDataset(
+    #         data_dir=data_args.data_dir,
+    #         tokenizer=tokenizer,
+    #         labels=labels,
+    #         model_type=config.model_type,
+    #         max_seq_length=data_args.max_seq_length,
+    #         overwrite_cache=data_args.overwrite_cache,
+    #         mode=Split.dev,
+    #     )
+    #     if training_args.do_eval
+    #     else None
+    # )
+
+    dataset = load_dataset('Stardrums/pico-breast-cancer')
+    train_dataset = dataset["train"]
+    eval_dataset=dataset["val"]
 
     def align_predictions(predictions: np.ndarray, label_ids: np.ndarray) -> Tuple[List[int], List[int]]:
         preds = np.argmax(predictions, axis=2)
